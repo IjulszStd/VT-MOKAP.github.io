@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>VJ UI Mockup</title>
+<style>
+  :root{
+    --bg: #414141;
+    --border: #1a4cff;
+    --tab-text: #1a4cff;
+    --screen-bg: #000000;
+    --btn-bg: #ffffff;
+    --btn-text: #000000;
+    --gap: 10px;
+    --border-w: 4px;
+    --vt-color: #313131;
+  }
+
+  *{ box-sizing: border-box; -webkit-user-select:none; user-select:none; }
+
+  html, body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:#000; overflow:hidden;
+  }
+
+  body{ display:flex; align-items:center; justify-content:center; }
+
+  .app{
+    width:100%; height:100%;
+    max-width:1280px; max-height:720px;
+    aspect-ratio: 16/9;
+    background:var(--bg);
+    padding: var(--gap);
+    display:grid;
+    grid-template-columns: 34% 1fr;
+    grid-template-rows: 58% 1fr;
+    gap: var(--gap);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  /* ---- LEFT TOP: tabs + panel ---- */
+  .panel-tabs{
+    grid-column: 1; grid-row: 1;
+    border: var(--border-w) solid var(--border);
+    background: var(--bg);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+
+  .tabs{ display:flex; flex-shrink:0; }
+
+  .tab{
+    flex:1;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    color: var(--tab-text);
+    font-weight:800;
+    font-size: clamp(11px, 2vw, 18px);
+    padding: 7px 4px;
+    text-align:center;
+    cursor:pointer;
+  }
+
+  .tab.active{ background: var(--border); color: #000; }
+
+  .tab-content{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .edit-grid{ display:flex; flex-direction:column; min-height:100%; }
+  .edit-row{ display:grid; grid-template-columns: 1fr 1fr; flex-shrink:0; }
+  .edit-row.filler{ flex:1; min-height:34px; }
+
+  .ec{
+    border: 1.5px solid var(--border);
+    color: var(--tab-text);
+    font-size: clamp(10px, 1.6vw, 15px);
+    display:flex;
+    align-items:center;
+    padding: 0 8px;
+    gap:6px;
+    min-height: 34px;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+
+  .ec.clickable{ cursor:pointer; }
+  .ec.clickable:active{ filter:brightness(1.3); }
+  .ec.toggle-on{ background:var(--border); color:#000; font-weight:800; }
+
+  .val-box{
+    margin-left:auto;
+    background:var(--bg);
+    border:1.5px solid var(--border);
+    color:#fff;
+    font-weight:800;
+    font-size: clamp(12px, 1.8vw, 18px);
+    text-align:center;
+    width: 34%;
+    min-width: 34px;
+    padding: 2px 0;
+  }
+  input.val-box{ appearance:textfield; }
+  input.val-box::-webkit-outer-spin-button,
+  input.val-box::-webkit-inner-spin-button{ margin:0; }
+
+  /* ---- LEFT BOTTOM: empty panel ---- */
+  .panel-side{
+    grid-column: 1; grid-row: 2;
+    border: var(--border-w) solid var(--border);
+    background: var(--bg);
+  }
+
+  /* ---- RIGHT TOP: black screen ---- */
+  .screen{
+    grid-column: 2; grid-row: 1;
+    background: var(--screen-bg);
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  .crosshair{
+    position:absolute;
+    background: rgba(80,150,255,0.55);
+    pointer-events:none;
+    display:none;
+    z-index:10;
+  }
+  .crosshair.h{ left:0; right:0; top:50%; height:1px; transform:translateY(-50%); }
+  .crosshair.v{ top:0; bottom:0; left:50%; width:1px; transform:translateX(-50%); }
+  .crosshair.show{ display:block; }
+
+  .master-video{
+    position:absolute;
+    pointer-events:none;
+    transform-origin:center center;
+    opacity:0;
+    z-index:5;
+    object-fit:cover;
+  }
+  .master-video.overlay-on{ opacity:1; }
+
+  .vt{
+    position:absolute;
+    aspect-ratio: 1/1;
+    background: var(--vt-color);
+    cursor: grab;
+    touch-action: none;
+    z-index:2;
+  }
+  .vt.selected{ outline: 2px solid #6fa8ff; outline-offset: 2px; }
+  .vt:active{ cursor: grabbing; }
+  .vt-canvas{ position:absolute; inset:0; pointer-events:none; }
+
+  /* ---- RIGHT BOTTOM: controller grid ---- */
+  .controller{
+    grid-column: 2; grid-row: 2;
+    border: var(--border-w) solid var(--border);
+    background: var(--bg);
+    display:grid;
+    grid-template-columns: 14% 14% 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    overflow:hidden;
+  }
+
+  .cell{ border: 2px solid var(--border); }
+  .cell.slot{
+    background: var(--bg);
+    color: var(--tab-text);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:clamp(9px,1.5vw,13px);
+    cursor:pointer;
+  }
+  .cell.slot.filled{ background:#1c2f57; color:#bcd4ff; }
+
+  .effects-row{
+    grid-column: 3; grid-row: 1;
+    display:flex; align-items:stretch; justify-content:flex-start; gap:8px; padding:6px;
+    min-width:0; min-height:0; overflow:hidden;
+  }
+  .fx-btn{
+    flex:0 1 auto; height:100%; aspect-ratio:1/1; max-width:40%;
+    background: var(--btn-bg); color: var(--btn-text);
+    font-weight:800; font-size: clamp(11px, 1.8vw, 20px);
+    display:flex; align-items:center; justify-content:center;
+    border-radius:2px; user-select:none; min-height:0;
+  }
+  .fx-empty{
+    grid-column: 3; grid-row: 2 / span 2;
+    display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap:6px; padding:6px; align-items:stretch; justify-items:stretch;
+  }
+  .fx-empty .fx-btn{ width:100%; height:100%; max-width:100%; aspect-ratio:auto; }
+
+  .fullscreen-btn{
+    position:fixed; top:8px; right:8px; z-index:100;
+    background:var(--bg); color:var(--tab-text);
+    border:2px solid var(--border); border-radius:4px;
+    padding:6px 10px; font-size:16px; cursor:pointer;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .fullscreen-btn:active{ filter:brightness(1.3); }
+
+  .fx-topbar{
+    display:flex; align-items:center; justify-content:center;
+    min-height:34px; border-bottom:1.5px solid var(--border);
+    position:relative; flex-shrink:0;
+  }
+  .fx-plus{
+    width:28px; height:28px; border:1.5px solid var(--border);
+    color:var(--tab-text); display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:18px; cursor:pointer; border-radius:2px;
+  }
+  .fx-plus.active{ background:var(--border); color:#000; }
+  .fx-back{
+    position:absolute; left:8px; color:var(--tab-text);
+    font-weight:800; cursor:pointer; font-size:16px;
+  }
+  .fx-title{ color:var(--tab-text); font-weight:800; font-size:clamp(12px,1.8vw,16px); }
+  .fx-list{ display:flex; flex-direction:column; }
+  .fx-list-item{
+    border:1.5px solid var(--border); color:var(--tab-text);
+    padding:8px; cursor:pointer; font-size:clamp(11px,1.8vw,15px);
+  }
+  .fx-list-item:active{ filter:brightness(1.3); }
+  .save-chip{
+    border:1.5px solid var(--border); color:var(--tab-text);
+    padding:2px 10px; cursor:pointer; font-weight:800;
+    font-size:clamp(10px,1.6vw,14px);
+  }
+  .save-chip:active{ filter:brightness(1.3); }
+  .save-chip.saved{ background:var(--border); color:#000; }
+  .slot-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .save-chip.filled-slot{
+    background:#2a2a2a; color:#666; border-color:#555;
+    cursor:not-allowed; opacity:0.7;
+  }
+  .save-chip.filled-slot:active{ filter:none; }
+  .ec.wrap{ white-space:normal; }
+
+  .fx-btn.has-effect{ box-shadow: 0 0 0 3px var(--border) inset; }
+  .fx-btn.playing{ background:var(--border); color:#fff; }
+
+  .rotate-hint{
+    display:none; position:fixed; inset:0; background:#000; color:#fff;
+    align-items:center; justify-content:center; text-align:center; padding:24px; z-index:10;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  @media (orientation: portrait){
+    .app{ display:none; }
+    .rotate-hint{ display:flex; }
+  }
+</style>
+</head>
+<body>
+
+  <button type="button" class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+
+  <div class="app">
+    <div class="panel-tabs">
+      <div class="tabs">
+        <div class="tab active" data-tab="edit">Edit</div>
+        <div class="tab" data-tab="effect">Effect</div>
+        <div class="tab" data-tab="image">Image</div>
+      </div>
+      <div class="tab-content" id="tabContent"></div>
+    </div>
+
+    <div class="panel-side"></div>
+
+    <div class="screen" id="screen">
+      <div class="crosshair h" id="ch"></div>
+      <div class="crosshair v" id="cv"></div>
+      <video class="master-video" id="masterVideo" muted playsinline></video>
+    </div>
+
+    <div class="controller">
+      <div class="cell slot" data-slot="0"></div>
+      <div class="cell slot" data-slot="1"></div>
+      <div class="effects-row">
+        <div class="fx-btn" data-fx="0">E1</div>
+        <div class="fx-btn" data-fx="1">E2</div>
+      </div>
+      <div class="cell slot" data-slot="2"></div>
+      <div class="cell slot" data-slot="3"></div>
+      <div class="cell slot" data-slot="4"></div>
+      <div class="cell slot" data-slot="5"></div>
+      <div class="fx-empty">
+        <div class="fx-btn" data-fx="2">E3</div>
+        <div class="fx-btn" data-fx="3">E4</div>
+        <div class="fx-btn" data-fx="4">E5</div>
+        <div class="fx-btn" data-fx="5">E6</div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="videoFileInput" accept="video/*" style="display:none">
+
+  <div class="rotate-hint">Putar HP ke mode landscape untuk melihat UI ini</div>
+
+<script>
+(function(){
+  const tabContent = document.getElementById('tabContent');
+  const screen = document.getElementById('screen');
+  const ch = document.getElementById('ch');
+  const cv = document.getElementById('cv');
+  const tabs = document.querySelectorAll('.tab');
+  const masterVideoEl = document.getElementById('masterVideo');
+  const fileInput = document.getElementById('videoFileInput');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+  fullscreenBtn.addEventListener('click', ()=>{
+    if(!document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    } else {
+      document.exitFullscreen().catch(()=>{});
+    }
+  });
+  document.addEventListener('fullscreenchange', ()=>{
+    fullscreenBtn.textContent = document.fullscreenElement ? '⤢' : '⛶';
+  });
+
+  const SNAP_THRESHOLD = 26;
+  let snapEnabled = true;
+
+  let videotrons = []; // {id, size, rot, elX, elY, posX, posY, el, canvas}
+  let nextId = 1;
+  let selectedIds = new Set();
+  let lastSelected = null;
+  let multiSelectMode = false;
+
+  let videoState = null; // {url, size, aspect, rot, elX, elY, posX, posY, loop, overlay}
+  let slots = new Array(6).fill(null);
+  let clearMode = false;
+
+  // Each saved slot gets its own hidden <video> that keeps playing in the
+  // background from the moment it's saved. Switching slots then just swaps
+  // which element is drawn/shown instead of reloading a src, so playback
+  // resumes instantly with no buffering gap.
+  let slotVideoPool = new Array(6).fill(null);
+  let activeVideoEl = masterVideoEl;
+
+  // "Matikan S Lain": like Boom's "Matikan Efek Lain" but for the S1-S6
+  // video slots. When ON, playing a filled S slot stops (pauses) the chosen
+  // target S slots' background players instead of leaving them running.
+  let imageDisableOthers = false;
+  let imageDisableTargets = []; // indices (0-5) of S slots to turn off
+
+  function imageSlotToggleChipsHtml(selectedArr){
+    let html = '';
+    for(let i=0;i<slots.length;i++){
+      const on = selectedArr.includes(i);
+      html += `<div class="save-chip${on?' saved':''}" data-islot="${i}">S${i+1}</div>`;
+    }
+    return html;
+  }
+
+  function createPoolVideo(url, loop){
+    const v = document.createElement('video');
+    v.className = 'master-video';
+    v.muted = true;
+    v.playsInline = true;
+    v.loop = !!loop;
+    v.preload = 'auto';
+    v.src = url;
+    screen.appendChild(v);
+    v.play().catch(()=>{});
+    return v;
+  }
+
+  function setActiveVideo(el){
+    if(activeVideoEl && activeVideoEl !== el) activeVideoEl.classList.remove('overlay-on');
+    activeVideoEl = el;
+  }
+
+  const EFFECT_SLOT_COUNT = 6;
+  let slotEffects = new Array(EFFECT_SLOT_COUNT).fill(null); // {type:'shake',...} or {type:'strobe',...}
+  let playingEffects = new Set();
+  let effectStartTimes = new Map(); // idx -> performance.now()/1000 when it started playing
+  let boomHoldState = new Map(); // idx -> { holding:boolean, releaseAt:number|null }, for boom effects with "Tahan Puncak" on
+  let shakeOffset = { x:0, y:0 };
+  let strobeCache = new Map(); // key: slotIdx:vtId:flashIndex -> pattern
+
+  /* ================= EDIT TAB ================= */
+
+  function buildEditPanel(){
+    tabContent.innerHTML = `
+      <div class="edit-grid">
+        <div class="edit-row">
+          <div class="ec clickable" id="btnAdd">Add Videotron</div>
+          <div class="ec">Total Videotron <span class="val-box" id="totalVt" style="margin-left:auto;">0</span></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="selectModeToggle">Select Videotron: OFF</div>
+          <div class="ec">Size Videotron <input type="number" class="val-box" id="sizeVt" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="clearModeToggle">Clear Slot: OFF</div>
+          <div class="ec">Rot Videotron <input type="number" class="val-box" id="rotVt" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="snapToggle">Snap Videotron: ON</div>
+          <div class="ec">Pos Y <input type="number" class="val-box" id="posY" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec"></div>
+          <div class="ec">Pos X <input type="number" class="val-box" id="posX" value="0"></div>
+        </div>
+        <div class="edit-row filler"><div class="ec"></div><div class="ec"></div></div>
+      </div>
+    `;
+    document.getElementById('btnAdd').addEventListener('click', addVideotron);
+    document.getElementById('snapToggle').addEventListener('click', ()=>{
+      snapEnabled = !snapEnabled;
+      refreshSnapUI();
+    });
+    document.getElementById('clearModeToggle').addEventListener('click', ()=>{
+      clearMode = !clearMode;
+      refreshClearModeUI();
+    });
+    document.getElementById('selectModeToggle').addEventListener('click', ()=>{
+      multiSelectMode = !multiSelectMode;
+      refreshSelectModeUI();
+      if(!multiSelectMode && selectedIds.size>1){
+        const keep = lastSelected ?? [...selectedIds][0];
+        selectedIds = new Set([keep]);
+        updateSelectionVisual();
+        refreshFields();
+      }
+    });
+    document.getElementById('sizeVt').addEventListener('input', (e)=>{
+      const px = Math.max(20, Number(e.target.value)||0);
+      selectedIds.forEach(id=>{
+        const v = videotrons.find(v=>v.id===id);
+        if(!v) return;
+        v.size = px;
+        v.el.style.width = px+'px';
+        clampPosition(v);
+        renderVt(v);
+      });
+    });
+    document.getElementById('rotVt').addEventListener('input', (e)=>{
+      const val = Number(e.target.value)||0;
+      selectedIds.forEach(id=>{
+        const v = videotrons.find(v=>v.id===id);
+        if(!v) return;
+        v.rot = val;
+        renderVt(v);
+      });
+    });
+    document.getElementById('posX').addEventListener('input', (e)=>{
+      const ref = getReference(); if(!ref) return;
+      const newX = Number(e.target.value)||0;
+      applyGroupPosDelta(newX-ref.posX, 0);
+    });
+    document.getElementById('posY').addEventListener('input', (e)=>{
+      const ref = getReference(); if(!ref) return;
+      const newY = Number(e.target.value)||0;
+      applyGroupPosDelta(0, newY-ref.posY);
+    });
+    refreshSelectModeUI();
+    refreshClearModeUI();
+    refreshSnapUI();
+    refreshFields();
+  }
+
+  function refreshSnapUI(){
+    const el = document.getElementById('snapToggle');
+    if(!el) return;
+    el.textContent = 'Snap Videotron: ' + (snapEnabled ? 'ON' : 'OFF');
+    el.classList.toggle('toggle-on', snapEnabled);
+  }
+
+  function refreshSelectModeUI(){
+    const el = document.getElementById('selectModeToggle');
+    if(!el) return;
+    el.textContent = multiSelectMode ? 'Select Videotron: ON' : 'Select Videotron: OFF';
+    el.classList.toggle('toggle-on', multiSelectMode);
+  }
+
+  function refreshClearModeUI(){
+    const el = document.getElementById('clearModeToggle');
+    if(!el) return;
+    el.textContent = clearMode ? 'Clear Slot: ON' : 'Clear Slot: OFF';
+    el.classList.toggle('toggle-on', clearMode);
+  }
+
+  function getReference(){
+    return videotrons.find(v=>v.id===lastSelected) || videotrons.find(v=>selectedIds.has(v.id)) || null;
+  }
+
+  function addVideotron(){
+    const rect = screen.getBoundingClientRect();
+    const size = Math.max(40, Math.min(rect.width, rect.height) * 0.16);
+    const el = document.createElement('div');
+    el.className = 'vt';
+    el.style.width = size+'px';
+    screen.appendChild(el);
+
+    const vt = { id: nextId++, size, rot:0, elX: rect.width/2, elY: rect.height/2, posX:0, posY:0, el, canvas:null };
+    videotrons.push(vt);
+    renderVt(vt);
+    attachDrag(vt);
+    selectSingle(vt.id);
+    refreshFields();
+  }
+
+  function renderVt(vt){
+    vt.el.style.left = vt.elX+'px';
+    vt.el.style.top = vt.elY+'px';
+    vt.el.style.transform = `translate(-50%,-50%) rotate(${vt.rot}deg)`;
+    vt.el.classList.toggle('selected', selectedIds.has(vt.id));
+  }
+
+  function clampPosition(vt){
+    const rect = screen.getBoundingClientRect();
+    const half = vt.size/2;
+    vt.elX = Math.min(rect.width-half, Math.max(half, vt.elX));
+    vt.elY = Math.min(rect.height-half, Math.max(half, vt.elY));
+    computePos(vt);
+  }
+
+  function computePos(vt){
+    const rect = screen.getBoundingClientRect();
+    const cx = rect.width/2, cy = rect.height/2;
+    const dx = vt.elX - cx, dy = vt.elY - cy;
+    vt.posX = Math.round(-dy);
+    vt.posY = Math.round(dx);
+  }
+
+  function applyGroupPosDelta(deltaPosX, deltaPosY){
+    const dxScreen = deltaPosY;
+    const dyScreen = -deltaPosX;
+    selectedIds.forEach(id=>{
+      const v = videotrons.find(v=>v.id===id);
+      if(!v) return;
+      v.elX += dxScreen; v.elY += dyScreen;
+      clampPosition(v); renderVt(v);
+    });
+    refreshFields();
+  }
+
+  // Half-extent of a videotron's actual screen-space bounding box, accounting
+  // for its rotation — so a tilted panel still snaps flush against a neighbor
+  // (e.g. one at 0deg) instead of using its unrotated size.
+  function effectiveHalfExtent(v){
+    const rad = (v.rot||0) * Math.PI/180;
+    const c = Math.abs(Math.cos(rad)), s = Math.abs(Math.sin(rad));
+    return (v.size/2) * (c + s);
+  }
+
+  // Smallest signed angle (deg) from b to a, wrapped to -180..180.
+  function angleDiff(a, b){
+    let d = ((a - b) % 360 + 360) % 360;
+    if(d > 180) d -= 360;
+    return d;
+  }
+
+  function computeSnapDelta(vt, movingIds, preferAxis){
+    const others = videotrons.filter(v=>!movingIds.has(v.id));
+    const AXIS_MARGIN = 10; // hysteresis: keep the axis already in use unless the other axis is clearly better by more than this
+
+    function pickAxis(distX, distY){
+      if(preferAxis==='x' && distX <= distY + AXIS_MARGIN) return 'x';
+      if(preferAxis==='y' && distY <= distX + AXIS_MARGIN) return 'y';
+      return distX <= distY ? 'x' : 'y';
+    }
+
+    // Pass 1: neighbors tilted at the SAME angle as vt — snap precisely in
+    // their shared rotated frame. Only the axis that's actually making them
+    // touch (the "contact" axis) gets locked to a flush edge distance; the
+    // other axis is left free, so once two same-tilt panels are touching you
+    // can keep sliding one along that shared edge — to the side, up, down,
+    // wherever — and it stays stuck to the edge instead of being
+    // force-centered. The nearest same-rotation neighbor (by raw distance)
+    // is picked first, then a SINGLE axis decision is made for it (with
+    // hysteresis) — deciding per-neighbor-per-axis independently was what
+    // made the lock flicker between axes and refuse to settle.
+    const rad = (vt.rot||0) * Math.PI/180;
+    const cosA = Math.cos(rad), sinA = Math.sin(rad);
+    let nearest = null, nearestDist = Infinity;
+    others.forEach(o=>{
+      if(Math.abs(angleDiff(vt.rot||0, o.rot||0)) > 0.5) return;
+      const dxScreen = o.elX - vt.elX, dyScreen = o.elY - vt.elY;
+      const localX = dxScreen*cosA + dyScreen*sinA;
+      const localY = -dxScreen*sinA + dyScreen*cosA;
+      const d = Math.hypot(localX, localY);
+      if(d < nearestDist){ nearestDist = d; nearest = { localX, localY, half: vt.size/2, oh: o.size/2 }; }
+    });
+    if(nearest){
+      const gap = nearest.half + nearest.oh;
+      const targetX = nearest.localX>=0 ? gap : -gap;
+      const distX = Math.abs(nearest.localX - targetX);
+      const targetY = nearest.localY>=0 ? gap : -gap;
+      const distY = Math.abs(nearest.localY - targetY);
+      const axis = pickAxis(distX, distY);
+      const dist = axis==='x' ? distX : distY;
+      if(dist < SNAP_THRESHOLD){
+        const ldx = axis==='x' ? (nearest.localX-targetX) : 0;
+        const ldy = axis==='y' ? (nearest.localY-targetY) : 0;
+        return {
+          dx: ldx*cosA - ldy*sinA,
+          dy: ldx*sinA + ldy*cosA,
+          axis
+        };
+      }
+    }
+
+    // Pass 2: fallback for 0deg panels / mismatched rotations — same idea
+    // in screen space: lock only the contact axis, leave the other free so
+    // the panel can slide along the touching edge.
+    const half = effectiveHalfExtent(vt);
+    let nearest2 = null, nearestDist2 = Infinity;
+    others.forEach(o=>{
+      const oh = effectiveHalfExtent(o);
+      const dxScreen = o.elX - vt.elX, dyScreen = o.elY - vt.elY;
+      const d = Math.hypot(dxScreen, dyScreen);
+      if(d < nearestDist2){ nearestDist2 = d; nearest2 = { dxScreen, dyScreen, gap: oh+half }; }
+    });
+    if(nearest2){
+      const targetX = nearest2.dxScreen>=0 ? nearest2.gap : -nearest2.gap;
+      const distX = Math.abs(nearest2.dxScreen - targetX);
+      const targetY = nearest2.dyScreen>=0 ? nearest2.gap : -nearest2.gap;
+      const distY = Math.abs(nearest2.dyScreen - targetY);
+      const axis = pickAxis(distX, distY);
+      const dist = axis==='x' ? distX : distY;
+      if(dist < SNAP_THRESHOLD){
+        return {
+          dx: axis==='x' ? (nearest2.dxScreen-targetX) : 0,
+          dy: axis==='y' ? (nearest2.dyScreen-targetY) : 0,
+          axis
+        };
+      }
+    }
+    return { dx:0, dy:0, axis:null };
+  }
+
+  function selectSingle(id){
+    selectedIds = new Set([id]);
+    lastSelected = id;
+    updateSelectionVisual();
+    refreshFields();
+  }
+  function toggleSelect(id){
+    if(selectedIds.has(id)) selectedIds.delete(id);
+    else { selectedIds.add(id); lastSelected = id; }
+    updateSelectionVisual();
+    refreshFields();
+  }
+  function clearSelection(){
+    selectedIds = new Set();
+    updateSelectionVisual();
+    refreshFields();
+  }
+  function updateSelectionVisual(){
+    videotrons.forEach(v=>v.el.classList.toggle('selected', selectedIds.has(v.id)));
+    const show = selectedIds.size>0;
+    ch.classList.toggle('show', show);
+    cv.classList.toggle('show', show);
+  }
+
+  function refreshFields(){
+    const totalEl = document.getElementById('totalVt');
+    if(!totalEl) return;
+    totalEl.textContent = videotrons.length;
+
+    const sizeEl = document.getElementById('sizeVt');
+    const rotEl = document.getElementById('rotVt');
+    const posXEl = document.getElementById('posX');
+    const posYEl = document.getElementById('posY');
+    const active = document.activeElement;
+    const ref = getReference();
+    if(ref){
+      if(active!==sizeEl) sizeEl.value = Math.round(ref.size);
+      if(active!==rotEl) rotEl.value = ref.rot;
+      if(active!==posXEl) posXEl.value = ref.posX;
+      if(active!==posYEl) posYEl.value = ref.posY;
+    } else {
+      if(active!==sizeEl) sizeEl.value = 0;
+      if(active!==rotEl) rotEl.value = 0;
+      if(active!==posXEl) posXEl.value = 0;
+      if(active!==posYEl) posYEl.value = 0;
+    }
+  }
+
+  function attachDrag(vt){
+    const THRESH = 5;
+    let pointerId = null, startX=0, startY=0, moved=false, startPositions=null, snapAxis=null;
+
+    vt.el.addEventListener('pointerdown', (e)=>{
+      e.stopPropagation();
+      pointerId = e.pointerId;
+      vt.el.setPointerCapture(pointerId);
+      const rect = screen.getBoundingClientRect();
+      startX = e.clientX-rect.left; startY = e.clientY-rect.top;
+      moved = false;
+      snapAxis = null;
+      const groupMode = multiSelectMode && selectedIds.has(vt.id) && selectedIds.size>1;
+      const ids = groupMode ? selectedIds : new Set([vt.id]);
+      startPositions = videotrons.filter(v=>ids.has(v.id)).map(v=>({v, ex:v.elX, ey:v.elY}));
+    });
+
+    vt.el.addEventListener('pointermove', (e)=>{
+      if(pointerId===null) return;
+      const rect = screen.getBoundingClientRect();
+      const curX = e.clientX-rect.left, curY = e.clientY-rect.top;
+      const dx = curX-startX, dy = curY-startY;
+      if(!moved && Math.hypot(dx,dy) < THRESH) return;
+      moved = true;
+      startPositions.forEach(sp=>{ sp.v.elX = sp.ex+dx; sp.v.elY = sp.ey+dy; });
+      const movingIds = new Set(startPositions.map(sp=>sp.v.id));
+      const snap = snapEnabled ? computeSnapDelta(vt, movingIds, snapAxis) : {dx:0, dy:0, axis:null};
+      snapAxis = snap.axis;
+      startPositions.forEach(sp=>{ sp.v.elX += snap.dx; sp.v.elY += snap.dy; });
+      startPositions.forEach(sp=>{ clampPosition(sp.v); renderVt(sp.v); });
+      refreshFields();
+    });
+
+    function endPointer(e){
+      if(pointerId===null) return;
+      try{ vt.el.releasePointerCapture(pointerId); }catch(err){}
+      if(!moved){
+        if(multiSelectMode) toggleSelect(vt.id);
+        else selectSingle(vt.id);
+      }
+      pointerId = null; startPositions = null; snapAxis = null;
+    }
+    vt.el.addEventListener('pointerup', endPointer);
+    vt.el.addEventListener('pointercancel', endPointer);
+  }
+
+  screen.addEventListener('pointerdown', (e)=>{
+    if(e.target === screen) clearSelection();
+  });
+
+  /* ================= IMAGE TAB ================= */
+
+  function buildImagePanel(){
+    tabContent.innerHTML = `
+      <div class="edit-grid">
+        <div class="edit-row">
+          <div class="ec clickable" id="btnImportVideo">Import Video</div>
+          <div class="ec clickable" id="loopToggle">Loop: OFF</div>
+        </div>
+        <div class="edit-row">
+          <div class="ec"></div>
+          <div class="ec">Size Video <input type="number" class="val-box" id="sizeVideo" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec"></div>
+          <div class="ec">Rot Video <input type="number" class="val-box" id="rotVideo" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec"></div>
+          <div class="ec">Pos Y <input type="number" class="val-box" id="posYVideo" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec"></div>
+          <div class="ec">Pos X <input type="number" class="val-box" id="posXVideo" value="0"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="overlayToggle">Video Overlay: OFF</div>
+          <div class="ec"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="imgDisableToggle">Matikan S Lain: ${imageDisableOthers?'ON':'OFF'}</div>
+          <div class="ec"></div>
+        </div>
+        ${imageDisableOthers ? `
+        <div class="edit-row">
+          <div class="ec">S yg dimatikan</div>
+          <div class="ec wrap slot-chips" id="imgDisableChips">${imageSlotToggleChipsHtml(imageDisableTargets)}</div>
+        </div>` : ''}
+        <div class="edit-row filler"><div class="ec"></div><div class="ec"></div></div>
+      </div>
+    `;
+    document.getElementById('btnImportVideo').addEventListener('click', ()=> fileInput.click());
+    document.getElementById('imgDisableToggle').addEventListener('click', ()=>{
+      imageDisableOthers = !imageDisableOthers;
+      buildImagePanel();
+    });
+    const imgDisableChipsEl = document.getElementById('imgDisableChips');
+    if(imgDisableChipsEl){
+      imgDisableChipsEl.querySelectorAll('.save-chip').forEach(chip=>{
+        const i = Number(chip.dataset.islot);
+        chip.addEventListener('click', ()=>{
+          const pos = imageDisableTargets.indexOf(i);
+          if(pos>=0) imageDisableTargets.splice(pos,1);
+          else imageDisableTargets.push(i);
+          buildImagePanel();
+        });
+      });
+    }
+    document.getElementById('loopToggle').addEventListener('click', ()=>{
+      if(!videoState) return;
+      videoState.loop = !videoState.loop;
+      activeVideoEl.loop = videoState.loop;
+      refreshImageFields();
+    });
+    document.getElementById('overlayToggle').addEventListener('click', ()=>{
+      if(!videoState) return;
+      videoState.overlay = !videoState.overlay;
+      renderVideoFrame();
+      refreshImageFields();
+    });
+    document.getElementById('sizeVideo').addEventListener('input', (e)=>{
+      if(!videoState) return;
+      videoState.size = Math.max(20, Number(e.target.value)||0);
+      renderVideoFrame();
+    });
+    document.getElementById('rotVideo').addEventListener('input', (e)=>{
+      if(!videoState) return;
+      videoState.rot = Number(e.target.value)||0;
+      renderVideoFrame();
+    });
+    document.getElementById('posXVideo').addEventListener('input', (e)=>{
+      if(!videoState) return;
+      setVideoPosManual(Number(e.target.value)||0, videoState.posY);
+    });
+    document.getElementById('posYVideo').addEventListener('input', (e)=>{
+      if(!videoState) return;
+      setVideoPosManual(videoState.posX, Number(e.target.value)||0);
+    });
+    refreshImageFields();
+  }
+
+  fileInput.addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const url = URL.createObjectURL(file);
+    const rect = screen.getBoundingClientRect();
+    videoState = {
+      url, size: Math.min(rect.width, rect.height)*0.5, aspect: 16/9,
+      rot:0, elX: rect.width/2, elY: rect.height/2, posX:0, posY:0,
+      loop:false, overlay:false
+    };
+    setActiveVideo(masterVideoEl);
+    masterVideoEl.src = url;
+    masterVideoEl.loop = false;
+    masterVideoEl.muted = true;
+    masterVideoEl.playsInline = true;
+    masterVideoEl.addEventListener('loadedmetadata', function onMeta(){
+      if(masterVideoEl.videoWidth && masterVideoEl.videoHeight){
+        videoState.aspect = masterVideoEl.videoWidth/masterVideoEl.videoHeight;
+      }
+      renderVideoFrame();
+      masterVideoEl.removeEventListener('loadedmetadata', onMeta);
+    });
+    masterVideoEl.play().catch(()=>{});
+    computeVideoPos();
+    renderVideoFrame();
+    refreshImageFields();
+    fileInput.value = '';
+  });
+
+  function computeVideoPos(){
+    if(!videoState) return;
+    const rect = screen.getBoundingClientRect();
+    const cx = rect.width/2, cy = rect.height/2;
+    const dx = videoState.elX-cx, dy = videoState.elY-cy;
+    videoState.posX = Math.round(-dy);
+    videoState.posY = Math.round(dx);
+  }
+
+  function setVideoPosManual(posX, posY){
+    if(!videoState) return;
+    const rect = screen.getBoundingClientRect();
+    const cx = rect.width/2, cy = rect.height/2;
+    videoState.elX = cx + posY;
+    videoState.elY = cy - posX;
+    computeVideoPos();
+    renderVideoFrame();
+    refreshImageFields();
+  }
+
+  function renderVideoFrame(){
+    if(!videoState) return;
+    const w = videoState.size;
+    const h = videoState.size/(videoState.aspect||16/9);
+    activeVideoEl.style.width = w+'px';
+    activeVideoEl.style.height = h+'px';
+    activeVideoEl.style.left = videoState.elX+'px';
+    activeVideoEl.style.top = videoState.elY+'px';
+    activeVideoEl.style.transform = `translate(-50%,-50%) rotate(${videoState.rot}deg)`;
+    activeVideoEl.classList.toggle('overlay-on', !!videoState.overlay);
+  }
+
+  function refreshImageFields(){
+    const loopEl = document.getElementById('loopToggle');
+    if(!loopEl) return;
+    const overlayEl = document.getElementById('overlayToggle');
+    const sizeEl = document.getElementById('sizeVideo');
+    const rotEl = document.getElementById('rotVideo');
+    const posXEl = document.getElementById('posXVideo');
+    const posYEl = document.getElementById('posYVideo');
+    const active = document.activeElement;
+
+    loopEl.textContent = 'Loop: ' + (videoState && videoState.loop ? 'ON' : 'OFF');
+    loopEl.classList.toggle('toggle-on', !!(videoState && videoState.loop));
+    overlayEl.textContent = 'Video Overlay: ' + (videoState && videoState.overlay ? 'ON' : 'OFF');
+    overlayEl.classList.toggle('toggle-on', !!(videoState && videoState.overlay));
+
+    if(videoState){
+      if(active!==sizeEl) sizeEl.value = Math.round(videoState.size);
+      if(active!==rotEl) rotEl.value = videoState.rot;
+      if(active!==posXEl) posXEl.value = videoState.posX;
+      if(active!==posYEl) posYEl.value = videoState.posY;
+    } else {
+      if(active!==sizeEl) sizeEl.value = 0;
+      if(active!==rotEl) rotEl.value = 0;
+      if(active!==posXEl) posXEl.value = 0;
+      if(active!==posYEl) posYEl.value = 0;
+    }
+  }
+
+  /* ================= EFFECT TAB ================= */
+
+  let effectSubview = 'root'; // 'root' | 'list' | 'shake' | 'strobe' | 'boom'
+  let draftShake = { shakeX:{ strength:10, speed:1 }, shakeY:{ strength:10, speed:1 } };
+  let draftStrobe = { direction:'x', density:2, speed:6, color:'#ffffff', rainbow:false, mode:'chase' };
+  let draftBoom = { color:'#ffffff', fadeIn:0.15, fadeOut:0.35, loop:true, hold:false, disableOthers:false, disableTargets:[] };
+  // effects queued from the "+" flow, not yet committed to an E-slot. Several
+  // effects (same type or mixed) can pile up here before being saved together
+  // as one combined effect on a single slot.
+  let draftEffectStack = [];
+
+  const STROBE_DIRECTIONS = ['x','y','all'];
+  const STROBE_DIR_LABEL = { x:'Acak X', y:'Acak Y', all:'Acak Semua' };
+  const STROBE_MODES = ['chase','random'];
+  const STROBE_MODE_LABEL = { chase:'Berurutan', random:'Acak' };
+
+  function buildEffectPanel(){
+    if(effectSubview==='list') renderEffectList();
+    else if(effectSubview==='shake') renderShakeEditor();
+    else if(effectSubview==='strobe') renderStrobeEditor();
+    else if(effectSubview==='boom') renderBoomEditor();
+    else renderEffectRoot();
+  }
+
+  function renderEffectRoot(){
+    const hasDraft = draftEffectStack.length>0;
+    let stackHtml = '';
+    if(hasDraft){
+      stackHtml = `<div class="fx-list" id="fxDraftList">` + draftEffectStack.map((eff,i)=>`
+        <div class="fx-list-item" style="cursor:default; display:flex; align-items:center; justify-content:space-between;">
+          <span>${effectSummaryLabel(eff)}</span>
+          <span class="fx-draft-remove" data-draftremove="${i}" style="font-weight:800; cursor:pointer; padding:0 8px;">&times;</span>
+        </div>
+      `).join('') + `</div>`;
+    }
+    tabContent.innerHTML = `
+      <div class="fx-topbar"><div class="fx-plus" id="fxPlus">+</div></div>
+      ${stackHtml}
+      <div class="edit-grid" style="flex:1;">
+        ${hasDraft ? `
+        <div class="edit-row">
+          <div class="ec">Save to</div>
+          <div class="ec wrap slot-chips" id="fxSaveChips">${slotChipsHtml()}</div>
+        </div>` : ''}
+      </div>
+    `;
+    document.getElementById('fxPlus').addEventListener('click', ()=>{
+      effectSubview='list'; buildEffectPanel();
+    });
+    if(hasDraft){
+      document.querySelectorAll('#fxDraftList [data-draftremove]').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          const i = Number(el.dataset.draftremove);
+          draftEffectStack.splice(i,1);
+          renderEffectRoot();
+        });
+      });
+      document.getElementById('fxSaveChips').querySelectorAll('.save-chip').forEach(chip=>{
+        const idx = Number(chip.dataset.slot);
+        chip.addEventListener('click', ()=>{
+          if(slotEffects[idx]) return; // only empty slots can be filled
+          slotEffects[idx] = JSON.parse(JSON.stringify(draftEffectStack));
+          updateFxButtonUI(idx);
+          draftEffectStack = [];
+          renderEffectRoot();
+        });
+      });
+    }
+  }
+
+  function effectSummaryLabel(eff){
+    if(eff.type==='shake') return 'Shake';
+    if(eff.type==='strobe') return 'Strobe ('+STROBE_DIR_LABEL[eff.direction]+')';
+    if(eff.type==='boom') return 'Boom'+(eff.loop?' (Loop)':'');
+    return eff.type;
+  }
+
+  function renderEffectList(){
+    tabContent.innerHTML = `
+      <div class="fx-topbar"><div class="fx-plus active" id="fxPlus">+</div></div>
+      <div class="fx-list">
+        <div class="fx-list-item" id="fxItemShake">Shake</div>
+        <div class="fx-list-item" id="fxItemStrobe">Strobe</div>
+        <div class="fx-list-item" id="fxItemBoom">Boom</div>
+      </div>
+    `;
+    document.getElementById('fxPlus').addEventListener('click', ()=>{
+      effectSubview='root'; buildEffectPanel();
+    });
+    document.getElementById('fxItemShake').addEventListener('click', ()=>{
+      effectSubview='shake'; buildEffectPanel();
+    });
+    document.getElementById('fxItemStrobe').addEventListener('click', ()=>{
+      effectSubview='strobe'; buildEffectPanel();
+    });
+    document.getElementById('fxItemBoom').addEventListener('click', ()=>{
+      effectSubview='boom'; buildEffectPanel();
+    });
+  }
+
+  /* ---- shared slot picker (E1..E6). Only empty slots are clickable. ---- */
+  function slotChipsHtml(){
+    let html = '';
+    for(let i=0;i<EFFECT_SLOT_COUNT;i++){
+      const filled = !!slotEffects[i];
+      html += `<div class="save-chip${filled?' filled-slot':''}" data-slot="${i}">E${i+1}</div>`;
+    }
+    return html;
+  }
+
+  /* ---- multi-toggle slot picker (E1..E6), used by Boom's "disable others" targets ---- */
+  function toggleChipsHtml(selectedArr){
+    let html = '';
+    for(let i=0;i<EFFECT_SLOT_COUNT;i++){
+      const on = selectedArr.includes(i);
+      html += `<div class="save-chip${on?' saved':''}" data-tslot="${i}">E${i+1}</div>`;
+    }
+    return html;
+  }
+
+  function renderShakeEditor(){
+    tabContent.innerHTML = `
+      <div class="fx-topbar">
+        <div class="fx-back" id="fxBack">&larr;</div>
+        <div class="fx-title">Shake</div>
+      </div>
+      <div class="edit-grid">
+        <div class="edit-row">
+          <div class="ec">Shake X Kekuatan <input type="number" class="val-box" id="shakeXStr" value="${draftShake.shakeX.strength}"></div>
+          <div class="ec">Shake X Kecepatan <input type="number" class="val-box" id="shakeXSpd" value="${draftShake.shakeX.speed}" step="0.1"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec">Shake Y Kekuatan <input type="number" class="val-box" id="shakeYStr" value="${draftShake.shakeY.strength}"></div>
+          <div class="ec">Shake Y Kecepatan <input type="number" class="val-box" id="shakeYSpd" value="${draftShake.shakeY.speed}" step="0.1"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="fxAddBtn" style="grid-column:1 / span 2; justify-content:center;">+ Tambah ke Efek</div>
+        </div>
+        <div class="edit-row filler"><div class="ec"></div><div class="ec"></div></div>
+      </div>
+    `;
+    document.getElementById('fxBack').addEventListener('click', ()=>{
+      effectSubview='list'; buildEffectPanel();
+    });
+    document.getElementById('shakeXStr').addEventListener('input', (e)=>{ draftShake.shakeX.strength = Number(e.target.value)||0; });
+    document.getElementById('shakeXSpd').addEventListener('input', (e)=>{ draftShake.shakeX.speed = Number(e.target.value)||0; });
+    document.getElementById('shakeYStr').addEventListener('input', (e)=>{ draftShake.shakeY.strength = Number(e.target.value)||0; });
+    document.getElementById('shakeYSpd').addEventListener('input', (e)=>{ draftShake.shakeY.speed = Number(e.target.value)||0; });
+    document.getElementById('fxAddBtn').addEventListener('click', ()=>{
+      draftEffectStack.push({
+        type:'shake',
+        shakeX: { strength: draftShake.shakeX.strength, speed: draftShake.shakeX.speed },
+        shakeY: { strength: draftShake.shakeY.strength, speed: draftShake.shakeY.speed }
+      });
+      effectSubview='root'; buildEffectPanel();
+    });
+  }
+
+  function renderStrobeEditor(){
+    tabContent.innerHTML = `
+      <div class="fx-topbar">
+        <div class="fx-back" id="fxBack">&larr;</div>
+        <div class="fx-title">Strobe</div>
+      </div>
+      <div class="edit-grid">
+        <div class="edit-row">
+          <div class="ec clickable" id="strobeDir">Arah: ${STROBE_DIR_LABEL[draftStrobe.direction]}</div>
+          <div class="ec">Kecepatan <input type="number" class="val-box" id="strobeSpeed" value="${draftStrobe.speed}" min="0.5" step="0.5"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec">Kotak (1/N) <input type="number" class="val-box" id="strobeDensity" value="${draftStrobe.density}" min="1" step="1"></div>
+          <div class="ec">Warna <input type="color" class="val-box" id="strobeColor" value="${draftStrobe.color}" style="padding:2px; cursor:pointer;" ${draftStrobe.rainbow?'disabled':''}></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="strobeRainbow">Rainbow: ${draftStrobe.rainbow?'ON':'OFF'}</div>
+          <div class="ec clickable" id="strobeMode">Mode: ${STROBE_MODE_LABEL[draftStrobe.mode]}</div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="fxAddBtn" style="grid-column:1 / span 2; justify-content:center;">+ Tambah ke Efek</div>
+        </div>
+        <div class="edit-row filler"><div class="ec"></div><div class="ec"></div></div>
+      </div>
+    `;
+    document.getElementById('fxBack').addEventListener('click', ()=>{
+      effectSubview='list'; buildEffectPanel();
+    });
+    document.getElementById('strobeDir').addEventListener('click', ()=>{
+      const i = STROBE_DIRECTIONS.indexOf(draftStrobe.direction);
+      draftStrobe.direction = STROBE_DIRECTIONS[(i+1)%STROBE_DIRECTIONS.length];
+      renderStrobeEditor();
+    });
+    document.getElementById('strobeRainbow').addEventListener('click', ()=>{
+      draftStrobe.rainbow = !draftStrobe.rainbow;
+      renderStrobeEditor();
+    });
+    document.getElementById('strobeMode').addEventListener('click', ()=>{
+      const i = STROBE_MODES.indexOf(draftStrobe.mode);
+      draftStrobe.mode = STROBE_MODES[(i+1)%STROBE_MODES.length];
+      renderStrobeEditor();
+    });
+    document.getElementById('strobeSpeed').addEventListener('input', (e)=>{ draftStrobe.speed = Math.max(0.5, Number(e.target.value)||0.5); });
+    document.getElementById('strobeDensity').addEventListener('input', (e)=>{ draftStrobe.density = Math.max(1, Math.round(Number(e.target.value))||2); });
+    document.getElementById('strobeColor').addEventListener('input', (e)=>{ draftStrobe.color = e.target.value; });
+    document.getElementById('fxAddBtn').addEventListener('click', ()=>{
+      draftEffectStack.push({
+        type:'strobe',
+        direction: draftStrobe.direction,
+        density: draftStrobe.density,
+        speed: draftStrobe.speed,
+        color: draftStrobe.color,
+        rainbow: draftStrobe.rainbow,
+        mode: draftStrobe.mode
+      });
+      effectSubview='root'; buildEffectPanel();
+    });
+  }
+
+  function renderBoomEditor(){
+    tabContent.innerHTML = `
+      <div class="fx-topbar">
+        <div class="fx-back" id="fxBack">&larr;</div>
+        <div class="fx-title">Boom</div>
+      </div>
+      <div class="edit-grid">
+        <div class="edit-row">
+          <div class="ec">Warna <input type="color" class="val-box" id="boomColor" value="${draftBoom.color}" style="padding:2px; cursor:pointer;"></div>
+          <div class="ec">Fade In (s) <input type="number" class="val-box" id="boomFadeIn" value="${draftBoom.fadeIn}" min="0" step="0.05"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec"></div>
+          <div class="ec">Fade Out (s) <input type="number" class="val-box" id="boomFadeOut" value="${draftBoom.fadeOut}" min="0.05" step="0.05"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="boomLoopToggle">Loop: ${draftBoom.loop?'ON':'OFF'}</div>
+          <div class="ec"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="boomHoldToggle">Tahan Puncak: ${draftBoom.hold?'ON':'OFF'}</div>
+          <div class="ec"></div>
+        </div>
+        <div class="edit-row">
+          <div class="ec clickable" id="boomDisableToggle">Matikan Efek Lain: ${draftBoom.disableOthers?'ON':'OFF'}</div>
+          <div class="ec"></div>
+        </div>
+        ${draftBoom.disableOthers ? `
+        <div class="edit-row">
+          <div class="ec">Efek yg dimatikan</div>
+          <div class="ec wrap slot-chips" id="disableChips">${toggleChipsHtml(draftBoom.disableTargets)}</div>
+        </div>` : ''}
+        <div class="edit-row">
+          <div class="ec clickable" id="fxAddBtn" style="grid-column:1 / span 2; justify-content:center;">+ Tambah ke Efek</div>
+        </div>
+        <div class="edit-row filler"><div class="ec"></div><div class="ec"></div></div>
+      </div>
+    `;
+    document.getElementById('fxBack').addEventListener('click', ()=>{
+      effectSubview='list'; buildEffectPanel();
+    });
+    document.getElementById('boomColor').addEventListener('input', (e)=>{ draftBoom.color = e.target.value; });
+    document.getElementById('boomFadeIn').addEventListener('input', (e)=>{ draftBoom.fadeIn = Math.max(0, Number(e.target.value)||0); });
+    document.getElementById('boomFadeOut').addEventListener('input', (e)=>{ draftBoom.fadeOut = Math.max(0.05, Number(e.target.value)||0.05); });
+    document.getElementById('boomLoopToggle').addEventListener('click', ()=>{
+      draftBoom.loop = !draftBoom.loop;
+      renderBoomEditor();
+    });
+    document.getElementById('boomHoldToggle').addEventListener('click', ()=>{
+      draftBoom.hold = !draftBoom.hold;
+      renderBoomEditor();
+    });
+    document.getElementById('boomDisableToggle').addEventListener('click', ()=>{
+      draftBoom.disableOthers = !draftBoom.disableOthers;
+      renderBoomEditor();
+    });
+    const disableChipsEl = document.getElementById('disableChips');
+    if(disableChipsEl){
+      disableChipsEl.querySelectorAll('.save-chip').forEach(chip=>{
+        const i = Number(chip.dataset.tslot);
+        chip.addEventListener('click', ()=>{
+          const pos = draftBoom.disableTargets.indexOf(i);
+          if(pos>=0) draftBoom.disableTargets.splice(pos,1);
+          else draftBoom.disableTargets.push(i);
+          renderBoomEditor();
+        });
+      });
+    }
+    document.getElementById('fxAddBtn').addEventListener('click', ()=>{
+      draftEffectStack.push({
+        type:'boom',
+        color: draftBoom.color,
+        fadeIn: draftBoom.fadeIn,
+        fadeOut: draftBoom.fadeOut,
+        loop: draftBoom.loop,
+        hold: draftBoom.hold,
+        disableOthers: draftBoom.disableOthers,
+        disableTargets: draftBoom.disableTargets.slice()
+      });
+      effectSubview='root'; buildEffectPanel();
+    });
+  }
+
+  const fxButtons = document.querySelectorAll('.fx-btn');
+  function slotHasHoldBoom(idx){
+    const effs = slotEffects[idx];
+    if(!effs) return false;
+    return effs.some(eff=> eff && eff.type==='boom' && eff.hold);
+  }
+  fxButtons.forEach((btn)=>{
+    const idx = Number(btn.dataset.fx);
+    btn.addEventListener('click', ()=>{
+      if(clearMode){
+        if(!slotEffects[idx]) return;
+        slotEffects[idx] = null;
+        playingEffects.delete(idx);
+        effectStartTimes.delete(idx);
+        boomHoldState.delete(idx);
+        updateFxButtonUI(idx);
+        return;
+      }
+      if(!slotEffects[idx]) return;
+      // slots holding a "Tahan Puncak" boom are pressed-and-held instead of
+      // click-toggled — see the pointerdown/pointerup handlers below.
+      if(slotHasHoldBoom(idx)) return;
+      if(playingEffects.has(idx)){
+        playingEffects.delete(idx);
+        effectStartTimes.delete(idx);
+      } else {
+        playingEffects.add(idx);
+        effectStartTimes.set(idx, performance.now()/1000);
+        const effs = slotEffects[idx];
+        effs.forEach(eff=>{
+          if(eff && eff.type==='boom' && eff.disableOthers && Array.isArray(eff.disableTargets)){
+            eff.disableTargets.forEach(tIdx=>{
+              if(tIdx===idx) return;
+              if(playingEffects.has(tIdx)){
+                playingEffects.delete(tIdx);
+                effectStartTimes.delete(tIdx);
+                updateFxButtonUI(tIdx);
+              }
+            });
+          }
+        });
+      }
+      updateFxButtonUI(idx);
+    });
+
+    let holdPointerId = null;
+    btn.addEventListener('pointerdown', (e)=>{
+      if(clearMode) return;
+      if(!slotHasHoldBoom(idx)) return;
+      e.preventDefault();
+      holdPointerId = e.pointerId;
+      try{ btn.setPointerCapture(holdPointerId); }catch(err){}
+      boomHoldState.set(idx, { holding:true, releaseAt:null });
+      playingEffects.add(idx);
+      effectStartTimes.set(idx, performance.now()/1000);
+      const effs = slotEffects[idx];
+      effs.forEach(eff=>{
+        if(eff && eff.type==='boom' && eff.disableOthers && Array.isArray(eff.disableTargets)){
+          eff.disableTargets.forEach(tIdx=>{
+            if(tIdx===idx) return;
+            if(playingEffects.has(tIdx)){
+              playingEffects.delete(tIdx);
+              effectStartTimes.delete(tIdx);
+              boomHoldState.delete(tIdx);
+              updateFxButtonUI(tIdx);
+            }
+          });
+        }
+      });
+      updateFxButtonUI(idx);
+    });
+
+    function releaseHold(){
+      if(holdPointerId===null) return;
+      try{ btn.releasePointerCapture(holdPointerId); }catch(err){}
+      holdPointerId = null;
+      const st = boomHoldState.get(idx);
+      if(st){
+        st.holding = false;
+        st.releaseAt = performance.now()/1000;
+      }
+      // stays in playingEffects until the release fade-out finishes;
+      // updateHoldBoomEffects() cleans it up and refreshes the button.
+    }
+    btn.addEventListener('pointerup', releaseHold);
+    btn.addEventListener('pointercancel', releaseHold);
+  });
+
+  function updateFxButtonUI(idx){
+    const btn = fxButtons[idx];
+    if(!btn) return;
+    btn.classList.toggle('has-effect', !!slotEffects[idx]);
+    btn.classList.toggle('playing', playingEffects.has(idx));
+  }
+
+  function computeShakeOffset(){
+    let ov = 0, oh = 0;
+    const t = performance.now()/1000;
+    playingEffects.forEach(idx=>{
+      const effs = slotEffects[idx];
+      if(!effs) return;
+      effs.forEach(eff=>{
+        if(!eff || eff.type!=='shake') return;
+        ov += (eff.shakeX.strength||0) * Math.sin(t * (eff.shakeX.speed||0) * 2*Math.PI);
+        oh += (eff.shakeY.strength||0) * Math.sin(t * (eff.shakeY.speed||0) * 2*Math.PI + 1.3);
+      });
+    });
+    shakeOffset = { x: oh, y: ov };
+  }
+
+  /* ================= SLOTS S1-S6 ================= */
+
+  document.querySelectorAll('.cell.slot').forEach(elSlot=>{
+    const idx = Number(elSlot.dataset.slot);
+    elSlot.textContent = 'S'+(idx+1);
+    elSlot.addEventListener('click', ()=>{
+      if(clearMode){
+        if(!slots[idx]) return;
+        slots[idx] = null;
+        if(slotVideoPool[idx]){
+          const wasActive = (activeVideoEl === slotVideoPool[idx]);
+          slotVideoPool[idx].pause();
+          slotVideoPool[idx].removeAttribute('src');
+          slotVideoPool[idx].load();
+          slotVideoPool[idx].remove();
+          slotVideoPool[idx] = null;
+          if(wasActive) setActiveVideo(masterVideoEl);
+        }
+        elSlot.classList.remove('filled');
+        elSlot.textContent = 'S'+(idx+1);
+        return;
+      }
+      if(slots[idx]){
+        loadSlot(idx);
+        if(imageDisableOthers && imageDisableTargets.length){
+          imageDisableTargets.forEach(tIdx=>{
+            if(tIdx===idx) return;
+            const poolEl = slotVideoPool[tIdx];
+            if(poolEl && !poolEl.paused){
+              poolEl.pause();
+            }
+          });
+        }
+      } else if(videoState){
+        slots[idx] = JSON.parse(JSON.stringify(videoState));
+        // pre-load a dedicated hidden player for this slot right away and
+        // keep it playing in the background, so recalling this slot later
+        // is an instant switch instead of a fresh load.
+        slotVideoPool[idx] = createPoolVideo(videoState.url, videoState.loop);
+        elSlot.classList.add('filled');
+        elSlot.textContent = 'S'+(idx+1)+' \u25CF';
+      }
+    });
+  });
+
+  function loadSlot(idx){
+    const saved = slots[idx];
+    if(!saved) return;
+    videoState = JSON.parse(JSON.stringify(saved));
+    let poolEl = slotVideoPool[idx];
+    if(!poolEl){
+      // fallback safety net, shouldn't normally be needed since the pool
+      // player is created at save time
+      poolEl = createPoolVideo(videoState.url, videoState.loop);
+      slotVideoPool[idx] = poolEl;
+    }
+    poolEl.loop = videoState.loop;
+    if(poolEl.paused) poolEl.play().catch(()=>{});
+    setActiveVideo(poolEl);
+    renderVideoFrame();
+    refreshImageFields();
+  }
+
+  /* ================= STROBE HELPERS ================= */
+
+  function computeStrobeCells(direction, N, mode, flashIndex){
+    // N===1 means "Kotak (1/N)" is set to 1: no subdivision, the whole
+    // square blinks on/off together at the chosen speed, instead of
+    // lighting one fixed always-on cell.
+    if(N===1){
+      const on = mode==='chase' ? (flashIndex % 2 === 0) : (Math.random() < 0.5);
+      if(direction==='all') return [[on]];
+      return [on];
+    }
+    if(mode==='chase'){
+      // sequential chaser: only one column/row/cell lit at a time, moving
+      // forward in order each flash tick (like a running-light chase).
+      if(direction==='all'){
+        const total = N*N;
+        const on = ((flashIndex % total) + total) % total;
+        const grid = [];
+        for(let i=0;i<N;i++){
+          const row=[];
+          for(let j=0;j<N;j++) row.push((i*N+j)===on);
+          grid.push(row);
+        }
+        return grid;
+      }
+      const on = ((flashIndex % N) + N) % N;
+      const arr=[];
+      for(let i=0;i<N;i++) arr.push(i===on);
+      return arr;
+    }
+    if(direction==='all'){
+      const grid = [];
+      for(let i=0;i<N;i++){
+        const row=[];
+        for(let j=0;j<N;j++) row.push(Math.random() < 1/N);
+        grid.push(row);
+      }
+      return grid;
+    }
+    const arr=[];
+    for(let i=0;i<N;i++) arr.push(Math.random() < 1/N);
+    return arr;
+  }
+
+  function strobeCellColor(eff, now, seedIndex){
+    if(eff.rainbow){
+      const hue = (now*90 + seedIndex*47) % 360;
+      return `hsla(${hue},100%,55%,0.92)`;
+    }
+    const {r,g,b} = hexToRgb(eff.color);
+    return `rgba(${r},${g},${b},0.92)`;
+  }
+
+  /* ================= BOOM HELPERS ================= */
+
+  function hexToRgb(hex){
+    let h = (hex||'#ffffff').replace('#','');
+    if(h.length===3) h = h.split('').map(c=>c+c).join('');
+    const num = parseInt(h,16) || 0xffffff;
+    return { r:(num>>16)&255, g:(num>>8)&255, b:num&255 };
+  }
+
+  function drawBoomForVt(vt, ctx, now){
+    playingEffects.forEach(idx=>{
+      const effs = slotEffects[idx];
+      if(!effs) return;
+      const start = effectStartTimes.get(idx) ?? now;
+      effs.forEach(eff=>{
+        if(!eff || eff.type!=='boom') return;
+        const fadeIn = Math.max(0.01, Number(eff.fadeIn)||0.01);
+        const fadeOut = Math.max(0.01, Number(eff.fadeOut)||0.01);
+        let tc;
+        if(eff.hold){
+          // "Tahan Puncak": ramps up to full white on press, then freezes
+          // there for as long as it's held; release starts a fresh fade-out
+          // from that peak, ignoring loop entirely.
+          const holdSt = boomHoldState.get(idx);
+          if(holdSt && holdSt.holding){
+            tc = Math.min(now - start, fadeIn);
+          } else if(holdSt && holdSt.releaseAt!=null){
+            tc = fadeIn + Math.min(now - holdSt.releaseAt, fadeOut);
+          } else {
+            tc = fadeIn;
+          }
+        } else {
+          const cycle = fadeIn + fadeOut;
+          const elapsed = now - start;
+          tc = eff.loop ? (elapsed % cycle) : Math.min(elapsed, cycle);
+        }
+        let alpha;
+        if(tc < fadeIn) alpha = tc/fadeIn;
+        else alpha = 1 - (tc-fadeIn)/fadeOut;
+        alpha = Math.max(0, Math.min(1, alpha));
+        if(alpha<=0) return;
+        const {r,g,b} = hexToRgb(eff.color);
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+        ctx.fillRect(0,0,vt.size,vt.size);
+      });
+    });
+  }
+
+  /* stops a slot once every effect it holds is a finished, non-looping boom.
+     if the slot also has a continuous effect (shake/strobe/looping boom),
+     that keeps playing after the one-shot boom(s) finish, so combos like
+     "boom then strobe" work: the boom flashes once, strobe keeps going.
+     hold-booms manage their own lifecycle in updateHoldBoomEffects, so
+     they're excluded here. */
+  function updateOneShotBoomEffects(now){
+    playingEffects.forEach(idx=>{
+      const effs = slotEffects[idx];
+      if(!effs || !effs.length) return;
+      const allOneShotBooms = effs.every(eff=> eff && eff.type==='boom' && !eff.loop && !eff.hold);
+      if(!allOneShotBooms) return;
+      const start = effectStartTimes.get(idx) ?? now;
+      const maxCycle = Math.max(...effs.map(eff=>{
+        const fadeIn = Math.max(0.01, Number(eff.fadeIn)||0.01);
+        const fadeOut = Math.max(0.01, Number(eff.fadeOut)||0.01);
+        return fadeIn + fadeOut;
+      }));
+      if(now - start >= maxCycle){
+        playingEffects.delete(idx);
+        effectStartTimes.delete(idx);
+        updateFxButtonUI(idx);
+      }
+    });
+  }
+
+  /* stops a "Tahan Puncak" boom slot once its post-release fade-out has
+     finished. While held (or with no release recorded yet) it's left alone
+     — drawBoomForVt keeps it pinned at peak white. */
+  function updateHoldBoomEffects(now){
+    playingEffects.forEach(idx=>{
+      const effs = slotEffects[idx];
+      if(!effs || !effs.length) return;
+      const holdEff = effs.find(eff=> eff && eff.type==='boom' && eff.hold);
+      if(!holdEff) return;
+      const holdSt = boomHoldState.get(idx);
+      if(!holdSt || holdSt.holding || holdSt.releaseAt==null) return;
+      const fadeOut = Math.max(0.01, Number(holdEff.fadeOut)||0.01);
+      if(now - holdSt.releaseAt >= fadeOut){
+        playingEffects.delete(idx);
+        effectStartTimes.delete(idx);
+        boomHoldState.delete(idx);
+        updateFxButtonUI(idx);
+      }
+    });
+  }
+
+  function drawStrobeForVt(vt, ctx, now){
+    playingEffects.forEach(idx=>{
+      const effs = slotEffects[idx];
+      if(!effs) return;
+      effs.forEach((eff, j)=>{
+        if(!eff || eff.type!=='strobe') return;
+        const N = Math.max(1, Math.min(20, Math.round(eff.density)||2));
+        const speed = Math.max(0.5, Number(eff.speed)||4);
+        const flashIndex = Math.floor(now*speed);
+        const cacheKey = idx+'.'+j+':'+vt.id+':'+flashIndex;
+        let cells = strobeCache.get(cacheKey);
+        if(!cells){
+          cells = computeStrobeCells(eff.direction, N, eff.mode, flashIndex);
+          strobeCache.set(cacheKey, cells);
+        }
+        const size = vt.size;
+        if(eff.direction==='x'){
+          const w = size/N;
+          cells.forEach((on,i)=>{
+            if(!on) return;
+            ctx.fillStyle = strobeCellColor(eff, now, i);
+            ctx.fillRect(i*w, 0, w+1, size);
+          });
+        } else if(eff.direction==='y'){
+          const h = size/N;
+          cells.forEach((on,i)=>{
+            if(!on) return;
+            ctx.fillStyle = strobeCellColor(eff, now, i);
+            ctx.fillRect(0, i*h, size, h+1);
+          });
+        } else {
+          const cw = size/N, ch = size/N;
+          cells.forEach((row,i)=>{
+            row.forEach((on,j2)=>{
+              if(!on) return;
+              ctx.fillStyle = strobeCellColor(eff, now, i*N+j2);
+              ctx.fillRect(j2*cw, i*ch, cw+1, ch+1);
+            });
+          });
+        }
+      });
+    });
+    if(strobeCache.size>2000) strobeCache.clear();
+  }
+
+  /* ================= VIDEO -> VIDEOTRON COMPOSITE ================= */
+
+  function compositeTick(){
+    const now = performance.now()/1000;
+
+    if(playingEffects.size>0){
+      updateOneShotBoomEffects(now);
+      updateHoldBoomEffects(now);
+    }
+    if(playingEffects.size>0){
+      computeShakeOffset();
+    } else if(shakeOffset.x!==0 || shakeOffset.y!==0){
+      shakeOffset = { x:0, y:0 };
+    }
+    // videotron panels never move from shake — only rendered per their own edited position/rotation.
+    videotrons.forEach(renderVt);
+
+    const hasVideo = !!(videoState && activeVideoEl.readyState >= 2 && activeVideoEl.videoWidth);
+    let frameW=0, frameH=0, videoCx=0, videoCy=0;
+    if(hasVideo){
+      frameW = videoState.size;
+      frameH = videoState.size/(videoState.aspect||16/9);
+      // shake shifts the sampled video window only, so the picture wobbles
+      // inside videotrons that themselves stay put.
+      videoCx = videoState.elX + shakeOffset.x;
+      videoCy = videoState.elY + shakeOffset.y;
+    }
+
+    videotrons.forEach(vt=>{
+      if(!vt.canvas){
+        const c = document.createElement('canvas');
+        c.className = 'vt-canvas';
+        vt.el.appendChild(c);
+        vt.canvas = c;
+      }
+      const canvas = vt.canvas;
+      canvas.width = vt.size;
+      canvas.height = vt.size;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      if(hasVideo){
+        // Treat the video as one flat image laid over the whole screen in
+        // world space, and each videotron as a physical (possibly rotated)
+        // window onto it. Drawing in world coordinates and only undoing the
+        // panel's own rotation — instead of clipping to an axis-aligned
+        // overlap box — means the canvas's own square bounds (which become
+        // a diamond on screen once CSS rotates the panel) do all the
+        // clipping, so the picture fills the panel completely, right into
+        // its corners/points. It also makes several same-rotation panels
+        // placed edge-to-edge show one continuous, correctly tilted image,
+        // like a real video-wall.
+        ctx.save();
+        ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.rotate(-vt.rot * Math.PI/180);
+        ctx.translate(-vt.elX, -vt.elY);
+        ctx.translate(videoCx, videoCy);
+        ctx.rotate((videoState.rot||0) * Math.PI/180);
+        ctx.drawImage(activeVideoEl, -frameW/2, -frameH/2, frameW, frameH);
+        ctx.restore();
+      }
+
+      if(playingEffects.size>0){
+        drawStrobeForVt(vt, ctx, now);
+        drawBoomForVt(vt, ctx, now);
+      }
+    });
+
+    requestAnimationFrame(compositeTick);
+  }
+  requestAnimationFrame(compositeTick);
+
+  /* ================= TABS ================= */
+
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      tabs.forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      const which = tab.dataset.tab;
+      if(which === 'edit') buildEditPanel();
+      else if(which === 'image') buildImagePanel();
+      else if(which === 'effect') buildEffectPanel();
+      else tabContent.innerHTML = '';
+    });
+  });
+
+  buildEditPanel();
+})();
+</script>
+
+</body>
+</html>
